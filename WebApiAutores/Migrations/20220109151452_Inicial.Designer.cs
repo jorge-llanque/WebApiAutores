@@ -9,8 +9,8 @@ using WebApiAutores;
 namespace WebApiAutores.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20220108220107_Libros")]
-    partial class Libros
+    [Migration("20220109151452_Inicial")]
+    partial class Inicial
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
@@ -28,7 +28,9 @@ namespace WebApiAutores.Migrations
                         .UseIdentityColumn();
 
                     b.Property<string>("Nombre")
-                        .HasColumnType("nvarchar(max)");
+                        .IsRequired()
+                        .HasMaxLength(120)
+                        .HasColumnType("nvarchar(120)");
 
                     b.HasKey("Id");
 
@@ -42,33 +44,13 @@ namespace WebApiAutores.Migrations
                         .HasColumnType("int")
                         .UseIdentityColumn();
 
-                    b.Property<int>("AutorId")
-                        .HasColumnType("int");
-
                     b.Property<string>("Titulo")
-                        .HasColumnType("nvarchar(max)");
+                        .HasMaxLength(250)
+                        .HasColumnType("nvarchar(250)");
 
                     b.HasKey("Id");
 
-                    b.HasIndex("AutorId");
-
                     b.ToTable("Libros");
-                });
-
-            modelBuilder.Entity("WebApiAutores.Entidades.Libro", b =>
-                {
-                    b.HasOne("WebApiAutores.Entidades.Autor", "Autor")
-                        .WithMany("Libros")
-                        .HasForeignKey("AutorId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Autor");
-                });
-
-            modelBuilder.Entity("WebApiAutores.Entidades.Autor", b =>
-                {
-                    b.Navigation("Libros");
                 });
 #pragma warning restore 612, 618
         }

@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Http;
+﻿using AutoMapper;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
@@ -6,6 +7,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using WebApiAutores.DTOs;
 using WebApiAutores.Entidades;
 
 namespace WebApiAutores.Controllers
@@ -16,11 +18,13 @@ namespace WebApiAutores.Controllers
     {
         private readonly ApplicationDbContext context;
         private readonly ILogger<AutoresController> logger;
+        private readonly IMapper mapper;
 
-        public AutoresController(ApplicationDbContext context, ILogger<AutoresController> logger)
+        public AutoresController(ApplicationDbContext context, ILogger<AutoresController> logger, IMapper mapper)
         {
             this.context = context;
             this.logger = logger;
+            this.mapper = mapper;
         }
 
         [HttpGet]             //  api/autores
@@ -28,7 +32,7 @@ namespace WebApiAutores.Controllers
         [HttpGet("/listado")] // listado
         public async Task<ActionResult<List<Autor>>> Get()
         {
-            return await context.Autores.Include(x => x.Libros).ToListAsync();
+            return await context.Autores.ToListAsync();
         }
 
         [HttpGet("{nombre}")]
@@ -51,14 +55,16 @@ namespace WebApiAutores.Controllers
         }
 
         [HttpPost]
-        public async Task<ActionResult> Post([FromBody] Autor autor)
+        public async Task<ActionResult> Post([FromBody] AutorCreacionDTO autorCreacionDTO)
         {
             // Validando desde el controlador hacia la bbdd
-            var existeAutorConElMismoNombre = await context.Autores.AnyAsync(x => x.Nombre == autor.Nombre);
+            var existeAutorConElMismoNombre = await context.Autores.AnyAsync(x => x.Nombre == autorCreacionDTO.Nombre);
             if (existeAutorConElMismoNombre)
             {
-                return BadRequest($"Ya existe un autor con el mismo nombre {autor.Nombre}");
+                return BadRequest($"Ya existe un autor con el mismo nombre {autorCreacionDTO.Nombre}");
             }
+            var autor = mapper.Map<Autor>(autorCreacionDTO);
+
             context.Add(autor);
             await context.SaveChangesAsync();
             return Ok();
