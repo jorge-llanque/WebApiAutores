@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -14,9 +15,12 @@ namespace WebApiAutores.Controllers
     public class AutoresController : ControllerBase
     {
         private readonly ApplicationDbContext context;
-        public AutoresController(ApplicationDbContext context)
+        private readonly ILogger<AutoresController> logger;
+
+        public AutoresController(ApplicationDbContext context, ILogger<AutoresController> logger)
         {
             this.context = context;
+            this.logger = logger;
         }
 
         [HttpGet]             //  api/autores
@@ -30,6 +34,8 @@ namespace WebApiAutores.Controllers
         [HttpGet("{nombre}")]
         public async Task<ActionResult<Autor>> Get([FromRoute] string nombre)
         {
+            //Esto es un puto logger
+            logger.LogInformation("Estamos obteniendo autores, jeje");
             var autor = await context.Autores.FirstOrDefaultAsync(x => x.Nombre.Contains(nombre));
             if(autor == null)
             {
@@ -47,6 +53,12 @@ namespace WebApiAutores.Controllers
         [HttpPost]
         public async Task<ActionResult> Post([FromBody] Autor autor)
         {
+            // Validando desde el controlador hacia la bbdd
+            var existeAutorConElMismoNombre = await context.Autores.AnyAsync(x => x.Nombre == autor.Nombre);
+            if (existeAutorConElMismoNombre)
+            {
+                return BadRequest($"Ya existe un autor con el mismo nombre {autor.Nombre}");
+            }
             context.Add(autor);
             await context.SaveChangesAsync();
             return Ok();
