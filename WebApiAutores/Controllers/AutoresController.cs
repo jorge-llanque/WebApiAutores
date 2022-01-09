@@ -28,31 +28,42 @@ namespace WebApiAutores.Controllers
         }
 
         [HttpGet]             //  api/autores
-        [HttpGet("listado")]  // api/autores/listado
-        [HttpGet("/listado")] // listado
-        public async Task<ActionResult<List<Autor>>> Get()
+        //[HttpGet("listado")]  // api/autores/listado
+        //[HttpGet("/listado")] // listado
+        public async Task<ActionResult<List<AutorDTO>>> Get()
         {
-            return await context.Autores.ToListAsync();
+           var autores = await context.Autores.ToListAsync();
+            return mapper.Map<List<AutorDTO>>(autores);
         }
 
-        [HttpGet("{nombre}")]
-        public async Task<ActionResult<Autor>> Get([FromRoute] string nombre)
+        [HttpGet("{id:int}")]
+        public async Task<ActionResult<AutorDTO>> Get(int id)
         {
-            //Esto es un puto logger
-            logger.LogInformation("Estamos obteniendo autores, jeje");
-            var autor = await context.Autores.FirstOrDefaultAsync(x => x.Nombre.Contains(nombre));
-            if(autor == null)
+            var autor = await context.Autores.FirstOrDefaultAsync(x => x.Id == id);
+            if (autor == null)
             {
                 return NotFound();
             }
-            return autor;
+
+            return mapper.Map<AutorDTO>(autor);
         }
 
-        [HttpGet("primero")]
-        public async Task<ActionResult<Autor>> Primero([FromHeader] int myValor, [FromQuery] string nombre)
+
+        [HttpGet("{nombre}")]
+        public async Task<ActionResult<List<AutorDTO>>> Get([FromRoute] string nombre)
         {
-            return await context.Autores.FirstOrDefaultAsync();
+            //Esto es un puto logger
+            logger.LogInformation("Estamos obteniendo autores, jeje");
+            var autores = await context.Autores.Where(x => x.Nombre.Contains(nombre)).ToListAsync();
+
+            return mapper.Map<List<AutorDTO>>(autores);
         }
+
+        //[HttpGet("primero")]
+        //public async Task<ActionResult<Autor>> Primero([FromHeader] int myValor, [FromQuery] string nombre)
+        //{
+        //    return await context.Autores.FirstOrDefaultAsync();
+        //}
 
         [HttpPost]
         public async Task<ActionResult> Post([FromBody] AutorCreacionDTO autorCreacionDTO)
