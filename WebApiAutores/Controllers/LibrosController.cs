@@ -24,7 +24,7 @@ namespace WebApiAutores.Controllers
             this.mapper = mapper;
         }
 
-        [HttpGet("{id:int}")]
+        [HttpGet("{id:int}", Name = "obtenerLibro")]
         public async Task<ActionResult<LibroDTOConAutores>> Get(int id)
         {
             var libro = await context.Libros
@@ -40,7 +40,7 @@ namespace WebApiAutores.Controllers
         [HttpPost]
         public async Task<ActionResult> Post(LibroCreactionDTO libroCreacionDTO)
         {
-            if(libroCreacionDTO.AutoresIds == null)
+            if (libroCreacionDTO.AutoresIds == null)
             {
                 return BadRequest("No se puede crear un libro sin autores");
             }
@@ -54,17 +54,44 @@ namespace WebApiAutores.Controllers
 
             var libro = mapper.Map<Libro>(libroCreacionDTO);
 
-            if(libro.AutoresLibros != null)
+            AsignarOrdenAutores(libro);
+
+            context.Add(libro);
+            await context.SaveChangesAsync();
+
+            var libroDTO = mapper.Map<LibroDTO>(libro);
+            return CreatedAtRoute("obtenerLibro", new { id = libro.Id }, libroDTO);
+        }
+
+        [HttpPut("{id:int}")] 
+        public async Task<ActionResult> Put([FromRoute] int id, [FromBody] LibroCreactionDTO libroCreactionDTO)
+        {
+            var libroDB = await context.Libros
+                .Include(x => x.AutoresLibros)
+                .FirstOrDefaultAsync(x => x.Id == id);
+
+            if(libroDB == null)
+            {
+                return NotFound();
+            }
+
+            libroDB = mapper.Map(libroCreactionDTO, libroDB);
+
+            AsignarOrdenAutores(libroDB);
+
+            await context.SaveChangesAsync();
+            return NoContent();
+        }
+
+        private void AsignarOrdenAutores(Libro libro)
+        {
+            if (libro.AutoresLibros != null)
             {
                 for (int i = 0; i < libro.AutoresLibros.Count; i++)
                 {
                     libro.AutoresLibros[i].Orden = i;
                 }
             }
-
-            context.Add(libro);
-            await context.SaveChangesAsync();
-            return Ok();
         }
     }
 }
