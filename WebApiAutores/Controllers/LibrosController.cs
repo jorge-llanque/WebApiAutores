@@ -1,10 +1,12 @@
-﻿using Microsoft.AspNetCore.Http;
+﻿using AutoMapper;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using WebApiAutores.DTOs;
 using WebApiAutores.Entidades;
 
 namespace WebApiAutores.Controllers
@@ -14,20 +16,23 @@ namespace WebApiAutores.Controllers
     public class LibrosController : ControllerBase
     {
         private readonly ApplicationDbContext context;
+        private readonly IMapper mapper;
 
-        public LibrosController(ApplicationDbContext context)
+        public LibrosController(ApplicationDbContext context, IMapper mapper)
         {
             this.context = context;
+            this.mapper = mapper;
         }
 
         [HttpGet("{id:int}")]
-        public async Task<ActionResult<Libro>> Get(int id)
+        public async Task<ActionResult<LibroDTO>> Get(int id)
         {
-            return await context.Libros.FirstOrDefaultAsync(x => x.Id == id);
+            var libro = await context.Libros.FirstOrDefaultAsync(x => x.Id == id);
+            return mapper.Map<LibroDTO>(libro);
         }
 
         [HttpPost]
-        public async Task<ActionResult> Post(Libro libro)
+        public async Task<ActionResult> Post(LibroCreactionDTO libroCreacionDTO)
         {
             //var existeAutor = await context.Autores.AnyAsync(x => x.Id == libro.AutorId);
             //if (!existeAutor)
@@ -35,6 +40,7 @@ namespace WebApiAutores.Controllers
             //    return BadRequest($"No existe el autor del Id: {libro.AutorId}");
             //}
 
+            var libro = mapper.Map<Libro>(libroCreacionDTO);
             context.Add(libro);
             await context.SaveChangesAsync();
             return Ok();

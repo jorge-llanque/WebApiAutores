@@ -14,6 +14,9 @@ namespace WebApiAutores.Utilidades
         {
             CreateMap<AutorCreacionDTO, Autor>();
             CreateMap<Autor, AutorDTO>();
+
+            CreateMap<LibroCreactionDTO, Libro>();
+            CreateMap<Libro, LibroDTO>();
         }
     }
 }
