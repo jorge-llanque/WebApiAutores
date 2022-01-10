@@ -5,7 +5,7 @@ using System.Threading.Tasks;
 
 namespace WebApiAutores.Entidades
 {
-    public class AutoresLibros
+    public class AutorLibro
     {
         public int LibroId { get; set; }
         public int AutorId { get; set; }

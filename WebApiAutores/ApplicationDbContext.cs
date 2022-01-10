@@ -17,12 +17,12 @@ namespace WebApiAutores
         {
             base.OnModelCreating(modelBuilder);
 
-            modelBuilder.Entity<AutoresLibros>().HasKey(al => new { al.AutorId, al.LibroId });
+            modelBuilder.Entity<AutorLibro>().HasKey(al => new { al.AutorId, al.LibroId });
         }
 
         public DbSet<Autor> Autores { get; set; }
         public DbSet<Libro> Libros { get; set; }
         public DbSet<Comentario> Comentarios { get; set; }
-        public DbSet<AutoresLibros> AutoresLibros { get; set; }
+        public DbSet<AutorLibro> AutoresLibros { get; set; }
     }
 }
