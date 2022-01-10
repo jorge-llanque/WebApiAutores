@@ -9,7 +9,7 @@ using WebApiAutores;
 namespace WebApiAutores.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20220109151452_Inicial")]
+    [Migration("20220110044209_Inicial")]
     partial class Inicial
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -37,6 +37,26 @@ namespace WebApiAutores.Migrations
                     b.ToTable("Autores");
                 });
 
+            modelBuilder.Entity("WebApiAutores.Entidades.Comentario", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int")
+                        .UseIdentityColumn();
+
+                    b.Property<string>("Contenido")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("LibroId")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("LibroId");
+
+                    b.ToTable("Comentarios");
+                });
+
             modelBuilder.Entity("WebApiAutores.Entidades.Libro", b =>
                 {
                     b.Property<int>("Id")
@@ -51,6 +71,22 @@ namespace WebApiAutores.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("Libros");
+                });
+
+            modelBuilder.Entity("WebApiAutores.Entidades.Comentario", b =>
+                {
+                    b.HasOne("WebApiAutores.Entidades.Libro", "Libro")
+                        .WithMany("Comentarios")
+                        .HasForeignKey("LibroId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Libro");
+                });
+
+            modelBuilder.Entity("WebApiAutores.Entidades.Libro", b =>
+                {
+                    b.Navigation("Comentarios");
                 });
 #pragma warning restore 612, 618
         }

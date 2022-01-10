@@ -18,6 +18,7 @@ namespace WebApiAutores.Entidades
         [StringLength(maximumLength:120, ErrorMessage = "El campo {0} no debe tener más de {1} caracteres")]
         [PrimeraLetraMayuscula]
         public string Nombre { get; set; }
+        public List<AutoresLibros> AutoresLibros { get; set; }
         //[PrimeraLetraMayuscula]
         //public int Menor { get; set; }
         //public int Mayor { get; set; }
@@ -35,18 +36,18 @@ namespace WebApiAutores.Entidades
         //Validaciones desde el modelo
         //public IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
         //{
-            //if (!string.IsNullOrEmpty(Nombre))
-            //{
-            //    var primeraLetra = Nombre[0].ToString();
-            //    if(primeraLetra != primeraLetra.ToUpper())
-            //    {
-            //        yield return new ValidationResult("La primera letra debe ser mayuscula", new string[] { nameof(Nombre) });
-            //    }
-            //}
-            //if(Menor > Mayor)
-            //{
-            //    yield return new ValidationResult("Este valor no puede ser mas grande que el campo Mayor", new string[] { nameof(Menor) });
-            //}
+        //if (!string.IsNullOrEmpty(Nombre))
+        //{
+        //    var primeraLetra = Nombre[0].ToString();
+        //    if(primeraLetra != primeraLetra.ToUpper())
+        //    {
+        //        yield return new ValidationResult("La primera letra debe ser mayuscula", new string[] { nameof(Nombre) });
+        //    }
+        //}
+        //if(Menor > Mayor)
+        //{
+        //    yield return new ValidationResult("Este valor no puede ser mas grande que el campo Mayor", new string[] { nameof(Menor) });
+        //}
         //}
     }
 }
