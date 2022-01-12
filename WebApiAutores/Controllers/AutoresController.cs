@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -30,6 +31,7 @@ namespace WebApiAutores.Controllers
         [HttpGet]             //  api/autores
         //[HttpGet("listado")]  // api/autores/listado
         //[HttpGet("/listado")] // listado
+        //[Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
         public async Task<ActionResult<List<AutorDTO>>> Get()
         {
            var autores = await context.Autores.ToListAsync();
