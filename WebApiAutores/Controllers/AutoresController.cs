@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -15,6 +16,7 @@ namespace WebApiAutores.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
+    [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Policy = "EsAdmin")]
     public class AutoresController : ControllerBase
     {
         private readonly ApplicationDbContext context;
@@ -55,6 +57,7 @@ namespace WebApiAutores.Controllers
 
 
         [HttpGet("{nombre}")]
+        [AllowAnonymous]
         public async Task<ActionResult<List<AutorDTO>>> Get([FromRoute] string nombre)
         {
             //Esto es un puto logger

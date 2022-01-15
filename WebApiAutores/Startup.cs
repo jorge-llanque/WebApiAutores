@@ -13,10 +13,12 @@ using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using System;
 using System.Collections.Generic;
+using System.IdentityModel.Tokens.Jwt;
 using System.Linq;
 using System.Text;
 using System.Text.Json.Serialization;
 using System.Threading.Tasks;
+using WebApiAutores.Services;
 
 namespace WebApiAutores
 {
@@ -24,6 +26,7 @@ namespace WebApiAutores
     {
         public Startup(IConfiguration configuration)
         {
+            JwtSecurityTokenHandler.DefaultInboundClaimTypeMap.Clear();
             Configuration = configuration;
         }
 
@@ -53,12 +56,50 @@ namespace WebApiAutores
             services.AddSwaggerGen(c =>
             {
                 c.SwaggerDoc("v1", new OpenApiInfo { Title = "WebApiAutores", Version = "v1" });
+                c.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
+                {
+                    Name = "Authorization",
+                    Type = SecuritySchemeType.ApiKey,
+                    Scheme = "Bearer",
+                    BearerFormat = "JWT",
+                    In = ParameterLocation.Header
+                });
+                c.AddSecurityRequirement(new OpenApiSecurityRequirement
+                {
+                    {
+                        new OpenApiSecurityScheme
+                        {
+                            Reference = new OpenApiReference
+                            {
+                                Type = ReferenceType.SecurityScheme,
+                                Id = "Bearer"
+                            }
+                        },
+                        new string[]{}
+                    }
+                });
             });
 
             services.AddAutoMapper(typeof(Startup));
             services.AddIdentity<IdentityUser, IdentityRole>()
                 .AddEntityFrameworkStores<ApplicationDbContext>()
                 .AddDefaultTokenProviders();
+            services.AddAuthorization(opciones =>
+            {
+                opciones.AddPolicy("EsAdmin", politica => politica.RequireClaim("esAdmin"));
+            });
+
+            services.AddCors(opciones =>
+            {
+                opciones.AddDefaultPolicy(builder =>
+                {
+                    builder.WithOrigins("https://www.apirequest.io").AllowAnyMethod().AllowAnyHeader();
+                });
+            });
+
+            services.AddDataProtection();
+
+            services.AddTransient<HashService>();
         }
 
         // This method gets called by the runtime. Use this method
@@ -82,6 +123,7 @@ namespace WebApiAutores
             {
                 endpoints.MapControllers();
             });
+            app.UseCors();
         }
     }
 }
