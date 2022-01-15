@@ -30,7 +30,7 @@ namespace WebApiAutores.Controllers
             this.mapper = mapper;
         }
 
-        [HttpGet]             //  api/autores
+        [HttpGet(Name = "obtenerAutores")]             //  api/autores
         //[HttpGet("listado")]  // api/autores/listado
         //[HttpGet("/listado")] // listado
         //[Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
@@ -52,11 +52,13 @@ namespace WebApiAutores.Controllers
                 return NotFound();
             }
 
-            return mapper.Map<AutorDTOConLibros>(autor);
+            var dto = mapper.Map<AutorDTOConLibros>(autor);
+            GenerarEnlaces(dto);
+            return dto;
         }
 
 
-        [HttpGet("{nombre}")]
+        [HttpGet("{nombre}", Name = "obtenerAutorPorNombre")]
         [AllowAnonymous]
         public async Task<ActionResult<List<AutorDTO>>> Get([FromRoute] string nombre)
         {
@@ -73,7 +75,7 @@ namespace WebApiAutores.Controllers
         //    return await context.Autores.FirstOrDefaultAsync();
         //}
 
-        [HttpPost]
+        [HttpPost(Name = "crearAutor")]
         public async Task<ActionResult> Post([FromBody] AutorCreacionDTO autorCreacionDTO)
         {
             // Validando desde el controlador hacia la bbdd
@@ -91,7 +93,7 @@ namespace WebApiAutores.Controllers
             return CreatedAtRoute("obtenerAutor", new { id = autor.Id }, autorDTO);
         }
 
-        [HttpPut("{id:int}")]
+        [HttpPut("{id:int}", Name = "actualizarAutor")]
         public async Task<ActionResult> Put(AutorCreacionDTO autorCreacionDTO, int id)
         {
             //if(autor.Id != id)
@@ -115,7 +117,7 @@ namespace WebApiAutores.Controllers
 
 
 
-        [HttpDelete("{id:int}")]
+        [HttpDelete("{id:int}", Name = "borrarAutor")]
         public async Task<ActionResult> Delete(int id)
         {
             var existe = await context.Autores.AnyAsync(x => x.Id == id);
@@ -127,6 +129,22 @@ namespace WebApiAutores.Controllers
             context.Remove(new Autor() { Id = id });
             await context.SaveChangesAsync();
             return NoContent();
+        }
+
+        private void GenerarEnlaces(AutorDTO autorDTO)
+        {
+            autorDTO.Enlaces.Add(new DatoHATEOAS(
+                enlace: Url.Link("obtenerAutor", new { id = autorDTO.Id }),
+                descripcion: "self",
+                metodo: "GET"));
+            autorDTO.Enlaces.Add(new DatoHATEOAS(
+                enlace: Url.Link("actualizarAutor", new { id = autorDTO.Id }),
+                descripcion: "autor-actualizar",
+                metodo: "PUT"));
+            autorDTO.Enlaces.Add(new DatoHATEOAS(
+                enlace: Url.Link("borrarAutor", new { id = autorDTO.Id }),
+                descripcion: "self",
+                metodo: "DELETE"));
         }
     }
 }
